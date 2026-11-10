@@ -1,0 +1,77 @@
+<header class="mb-4">
+    <h1 class="h3 mb-1">Categorias financeiras</h1>
+    <p class="text-secondary">Organize receitas e despesas por categoria.</p>
+</header>
+<div class="row g-4">
+    <section class="col-12 col-lg-5">
+        <app-categoria-form [categoria]="categoriaSelecionada()" (salvo)="aoSalvar()" />
+    </section>
+
+    <section class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Categorias cadastradas</h2>
+
+                <div class="mb-3">
+                    <label for="filtro" class="form-label">Filtrar por tipo</label>
+                    <select id="filtro" class="form-select" [value]="filtro()" (change)="atualizarFiltro($event)">
+                        <option value="TODOS">Todos</option>
+                        <option value="DESPESA">Despesa</option>
+                        <option value="RECEITA">Receita</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Tipo</th>
+                                <th>Situação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (categorias().length === 0) {
+                            <tr>
+                                <td colspan="4" class="text-center text-secondary py-4">Nenhuma categoria encontrada.</td>
+                            </tr>
+                            } @else {
+                            @for (categoria of categorias(); track categoria.id) {
+                            <tr>
+                                <td>{{ categoria.descricao }}</td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                        [class.bg-success-subtle]="categoria.tipo === 'RECEITA'"
+                                        [class.text-success]="categoria.tipo === 'RECEITA'"
+                                        [class.bg-danger-subtle]="categoria.tipo === 'DESPESA'"
+                                        [class.text-danger]="categoria.tipo === 'DESPESA'">
+                                        {{ categoria.tipo }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge" [class.bg-success]="categoria.ativo"
+                                        [class.bg-secondary]="!categoria.ativo">
+                                        {{ categoria.ativo ? 'Ativa' : 'Inativa' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-primary" type="button"
+                                            (click)="editar(categoria)">Editar</button>
+                                        <button class="btn btn-sm btn-outline-secondary" type="button"
+                                            (click)="alternarSituacao(categoria)">
+                                            {{ categoria.ativo ? 'Desativar' : 'Ativar' }}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
