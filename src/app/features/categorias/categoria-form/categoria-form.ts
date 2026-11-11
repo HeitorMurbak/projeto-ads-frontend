@@ -1,13 +1,7 @@
 import { Component, effect, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Categoria, CategoriaInput } from '../../../models/categoria.model';
 import { CategoriaService } from '../../../core/services/categoria.service';
-import { Categoria, CategoriaInput, TipoCategoria } from '../../../models/categoria.model';
-
-type CategoriaFormulario = FormGroup<{
-  descricao: FormControl<string>;
-  tipo: FormControl<TipoCategoria>;
-  ativo: FormControl<boolean>;
-}>;
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -16,91 +10,66 @@ type CategoriaFormulario = FormGroup<{
   templateUrl: './categoria-form.html',
 })
 export class CategoriaForm {
-  categoria = input<Categoria | null>(null);
-  salvo = output<void>();
-
-  formulario: CategoriaFormulario = new FormGroup({
-    descricao: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(3), Validators.maxLength(60)],
-    }),
-    tipo: new FormControl<TipoCategoria>('DESPESA', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    ativo: new FormControl(true, {
-      nonNullable: true,
-    }),
-  });
-
+  categoria = input<Categoria|null>(null);
+  salvou = output<void>();
+  cancelou = output<void>();
   erro = '';
 
-  constructor(private readonly categoriaService: CategoriaService) {
-    effect(() => {
-      const categoriaSelecionada = this.categoria();
+  formulario = new FormGroup({
+    descricao: new FormControl('',{
+      nonNullable:true,
+      validators:[
+      Validators.required,
+      Validators.minLength(3)
+    ]}),  
+    tipo: new FormControl<'RECEITA' | 'DESPESA'>(
+        'DESPESA',
+      { nonNullable: true }
+      ),
+    ativa: new FormControl(true, {
+      nonNullable: true
+    })
+  });
+
+  constructor(private categoriaService:CategoriaService){
+    effect(()=>{
+      const categoria = this.categoria();
       this.erro = '';
-
-      this.formulario.reset(
-        categoriaSelecionada
-          ? {
-              descricao: categoriaSelecionada.descricao,
-              tipo: categoriaSelecionada.tipo,
-              ativo: categoriaSelecionada.ativo,
-            }
-          : {
-              descricao: '',
-              tipo: 'DESPESA',
-              ativo: true,
-            }
-      );
-    });
+      this.formulario.reset(categoria ? {
+        descricao: categoria.descricao,
+        tipo:categoria.tipo,
+        ativa: categoria.ativa
+      }:{
+        descricao: '',
+        tipo:'DESPESA',
+        ativa: true
+      })
+    })
   }
-
-  get descricaoControl() {
-    return this.formulario.controls.descricao;
-  }
-
-  get tipoControl() {
-    return this.formulario.controls.tipo;
-  }
-
-  get ativoControl() {
-    return this.formulario.controls.ativo;
-  }
-
-  salvar(): void {
-    if (this.formulario.invalid) {
+  salvar():void {
+    if (this.formulario.invalid){
       this.formulario.markAllAsTouched();
-      this.erro = 'Preencha corretamente os campos obrigatórios.';
       return;
     }
-
     const dados: CategoriaInput = this.formulario.getRawValue();
-    const categoriaAtual = this.categoria();
-
-    if (categoriaAtual === null) {
-      const categoriaCadastrada = this.categoriaService.cadastrar(dados);
-
-      if (!categoriaCadastrada) {
-        this.erro = 'Já existe uma categoria com essa descrição para o mesmo tipo.';
-        return;
-      }
+    const categoria = this.categoria();
+    if (categoria === null){
+      this.categoriaService.cadastrar(dados);
     } else {
-      const categoriaAtualizada = this.categoriaService.atualizar(categoriaAtual.id, dados);
-
-      if (!categoriaAtualizada) {
-        this.erro = 'Categoria não encontrada para atualização ou já existe uma descrição duplicada.';
+      const atualizada = this.categoriaService
+        .atualizar(categoria.id,dados);
+      if (!atualizada){
+        this.erro = 'Categoria não encontrada para atualização.';
         return;
       }
     }
-
-    this.formulario.reset({ descricao: '', tipo: 'DESPESA', ativo: true });
-    this.erro = '';
-    this.salvo.emit();
+    this.formulario.reset({descricao:'',tipo:'DESPESA',ativa:true});
+    this.salvou.emit();
   }
-
-  cancelar(): void {
-    this.formulario.reset({ descricao: '', tipo: 'DESPESA', ativo: true });
+  cancelar():void {
     this.erro = '';
+    this.formulario.reset({descricao:'',tipo:'DESPESA',ativa:true});
+    this.cancelou.emit();
   }
 }
+

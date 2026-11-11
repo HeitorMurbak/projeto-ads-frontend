@@ -1,56 +1,40 @@
 <div class="card border-0 shadow-sm">
   <div class="card-body p-4">
-    <h2 class="h5 mb-3">{{ categoria() ? 'Editar categoria' : 'Nova categoria' }}</h2>
-
+    <h2 class="h5 mb-3">{{ categoria() === null ? 'Nova categoria' : 'Editar categoria' }}</h2>
     <form [formGroup]="formulario" (ngSubmit)="salvar()">
       <div class="mb-3">
         <label class="form-label" for="descricao">Descrição</label>
-        <input
-          id="descricao"
-          class="form-control"
-          type="text"
-          formControlName="descricao"
-          placeholder="Ex.: Alimentação"
-          [class.is-invalid]="descricaoControl.invalid && (descricaoControl.touched || descricaoControl.dirty)"
-        >
-        <div class="form-text">Obrigatória, de 3 a 60 caracteres.</div>
-        @if (descricaoControl.invalid && (descricaoControl.touched || descricaoControl.dirty)) {
-          <div class="invalid-feedback d-block">
-            @if (descricaoControl.hasError('required')) {
-              <span>Descrição é obrigatória.</span>
-            }
-            @if (descricaoControl.hasError('minlength')) {
-              <span>Informe pelo menos 3 caracteres.</span>
-            }
-            @if (descricaoControl.hasError('maxlength')) {
-              <span>Máximo de 60 caracteres.</span>
-            }
-          </div>
+        <input id="descricao" class="form-control" placeholder="Ex.: Alimentação"
+          formControlName="descricao" />
+        @if (formulario.controls.descricao.touched && formulario.controls.descricao.hasError('required')) {
+          <div class="text-danger small">A descrição é obrigatória.</div>
         }
+        @if (formulario.controls.descricao.touched && formulario.controls.descricao.hasError('minlength')) {
+          <div class="text-danger small">Informe pelo menos 3 caracteres.</div>
+        }
+        @if (formulario.controls.descricao.touched && formulario.controls.descricao.hasError('maxlength')) {
+          <div class="text-danger small">Informe no máximo 60 caracteres.</div>
+        }
+        <div class="form-text">Obrigatória, de 3 a 60 caracteres.</div>
       </div>
-
       <div class="mb-3">
         <label class="form-label" for="tipo">Tipo</label>
-        <select id="tipo" class="form-select" formControlName="tipo" [class.is-invalid]="tipoControl.invalid && (tipoControl.touched || tipoControl.dirty)">
+        <select id="tipo" class="form-select" formControlName="tipo">
           <option value="DESPESA">Despesa</option>
           <option value="RECEITA">Receita</option>
         </select>
       </div>
-
       <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" id="ativo" formControlName="ativo">
+        <input class="form-check-input" type="checkbox" id="ativo" formControlName="ativo" />
         <label class="form-check-label" for="ativo">Ativa</label>
       </div>
-
-      <div class="d-flex gap-2">
-        <button class="btn btn-primary" type="submit">Salvar categoria</button>
-        <button class="btn btn-outline-secondary" type="button" (click)="cancelar()">Cancelar</button>
-      </div>
+      @if (erro) { <p class="text-danger small" role="alert">{{ erro }}</p> }
+      <button class="btn btn-primary" type="submit">
+        {{ categoria() === null ? 'Cadastrar categoria' : 'Salvar alterações' }}
+      </button>
+      @if (categoria() !== null) {
+        <button class="btn btn-outline-secondary ms-2" type="button" (click)="cancelar()">Cancelar</button>
+      }
     </form>
-
-    @if (erro) {
-      <div class="alert alert-danger mt-3 mb-0">{{ erro }}</div>
-    }
-    <p class="small text-secondary mt-3 mb-0">Atividade: habilitar o formulário e implementar as operações.</p>
   </div>
 </div>
