@@ -54,17 +54,31 @@ export class CategoriaForm {
     const dados: CategoriaInput = this.formulario.getRawValue();
     const categoria = this.categoria();
     if (categoria === null){
-      this.categoriaService.cadastrar(dados);
+      console.log("Cadastrar!!")
+      this.categoriaService.cadastrar(dados).subscribe({
+        next: ()=>{
+              this.formulario.reset({descricao:'',tipo:'DESPESA',ativa:true});
+              this.salvou.emit();
+        },
+        error: erro => {
+          this.erro = "Ocorreu um erro ao gravar";
+          console.log(erro);
+        }
+      });
     } else {
+      console.log("Atualizar!!")
       const atualizada = this.categoriaService
-        .atualizar(categoria.id,dados);
-      if (!atualizada){
-        this.erro = 'Categoria não encontrada para atualização.';
-        return;
-      }
+        .atualizar(categoria.id,dados).subscribe({
+          next: ()=> {
+              this.formulario.reset({descricao:'',tipo:'DESPESA',ativa:true});
+              this.salvou.emit();
+          },
+          error: erro=> {
+            this.erro = "Ocorreu um erro ao gravar";
+            console.log(erro);
+          }
+        });
     }
-    this.formulario.reset({descricao:'',tipo:'DESPESA',ativa:true});
-    this.salvou.emit();
   }
   cancelar():void {
     this.erro = '';
@@ -72,4 +86,3 @@ export class CategoriaForm {
     this.cancelou.emit();
   }
 }
-

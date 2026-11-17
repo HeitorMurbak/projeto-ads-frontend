@@ -15,8 +15,15 @@
         <h2 class="h5 mb-3">Categorias cadastradas</h2>
         <div class="mb-3">
           <label for="filtro" class="form-label">Filtrar por tipo</label>
-          <select id="filtro" class="form-select" disabled>
-            <option>Todos (implementar na aula)</option>
+          <select
+            id="filtro"
+            class="form-select"
+            [value]="filtroTipo()"
+            (change)="alterarFiltro($event)"
+          >
+            <option value="TODOS">Todos</option>
+            <option value="RECEITA">Receitas</option>
+            <option value="DESPESA">Despesas</option>
           </select>
         </div>
         <div class="table-responsive">
@@ -25,7 +32,7 @@
               <tr><th>Descrição</th><th>Tipo</th><th>Situação</th><th>Ações</th></tr>
             </thead>
             <tbody>
-              @for (categoria of categorias; track categoria.id) {
+              @for (categoria of categoriasFiltradas(); track categoria.id) {
                 <tr>
                   <td>{{ categoria.descricao }}</td>
                   <td>{{ categoria.tipo === 'RECEITA' ? 'Receita' : 'Despesa' }}</td>

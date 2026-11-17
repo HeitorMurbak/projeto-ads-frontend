@@ -30,4 +30,5 @@ export class CategoriaService {
   atualizar(id: number, dados: CategoriaInput): Observable<Categoria> {
     return this.http.put<Categoria>(`${this.API}/${id}`,dados);
   }
+
 }

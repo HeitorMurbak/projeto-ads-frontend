@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CategoriaForm } from '../categoria-form/categoria-form';
 import { Categoria, CategoriaInput } from '../../../models/categoria.model';
 import { CategoriaService } from '../../../core/services/categoria.service';
@@ -10,10 +10,10 @@ import { CategoriaService } from '../../../core/services/categoria.service';
   templateUrl: './categoria-lista.html',
 })
 export class CategoriaLista implements OnInit {
-  categorias: Categoria[] = [];
+  categorias = signal<Categoria[]>([]);
   erro = "";
   carregado = false;
-
+  filtroTipo = signal<'TODOS' | 'RECEITA' | 'DESPESA'>('TODOS');
   categoriaSelecionada: Categoria | null = null;
 
   constructor(private categoriaService: CategoriaService) {}
@@ -25,9 +25,12 @@ export class CategoriaLista implements OnInit {
   carregarCategorias(): void {
     this.carregado = true;
     this.erro = "";
+    console.log("Estou carregando categorias!!")
     this.categoriaService.listar().subscribe({
       next: dados => {
-        this.categorias = dados;
+        this.categorias.set(dados);
+        console.log("Carreguei a categoria!");
+        console.log(this.categorias());
         this.carregado = false;
       },
       error: erro => {
@@ -67,4 +70,24 @@ export class CategoriaLista implements OnInit {
         }
       });
   }
+
+  categoriasFiltradas = computed(() => {
+    const tipo = this.filtroTipo();
+
+    if (tipo === 'TODOS') {
+      return this.categorias();
+    }
+
+    return this.categorias().filter(
+      categoria => categoria.tipo === tipo
+    );
+  });
+  
+  alterarFiltro(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.filtroTipo.set(
+      select.value as 'TODOS' | 'RECEITA' | 'DESPESA'
+    );
+  }
+
 }
