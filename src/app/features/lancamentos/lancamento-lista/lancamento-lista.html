@@ -1,0 +1,17 @@
+<h2>Lançamentos financeiros</h2>
+<app-lancamento-form [usuarioId]="usuarioId" (salvou)="carregar()" /> 
+@if (carregando()) { <p>Carregando...</p> }
+@if (erro()) { <div class="alert alert-danger">{{ erro() }}</div> }
+<table class="table table-striped">
+  <thead><tr><th>Descrição</th><th>Categoria</th><th>Data</th><th>Valor</th></tr></thead>
+  <tbody>
+    @for (l of lancamentos(); track l.id) {
+      <tr>
+        <td>{{ l.descricao }}</td>
+        <td>{{ l.categoriaDescricao }}</td>
+        <td>{{ l.dataLancamento | date:'dd/MM/yyyy':'UTC' }}</td>
+        <td>{{ l.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+      </tr>
+    } @empty { <tr><td colspan="4">Nenhum lançamento.</td></tr> }
+  </tbody>
+</table>
